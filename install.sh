@@ -5,11 +5,14 @@ export TERM=xterm-256color
 echo 'export TERM=xterm-256color' >> ~/.bashrc
 
 # Instalar Neovim
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
-chmod u+x nvim.appimage
-sudo mv nvim.appimage /usr/local/bin/nvim
+curl -L -o /tmp/nvim.appimage https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+chmod u+x /tmp/nvim.appimage
+sudo mv /tmp/nvim.appimage /usr/local/bin/nvim
 
-# Enlazar config (el repo ya está clonado en ~/dotfiles por DevPod)
+# IMPORTANTE: Crear directorio .config si no existe
+mkdir -p ~/.config
+
+# DevPod clona los dotfiles en ~/dotfiles, hacer symlink
 ln -sf ~/dotfiles ~/.config/nvim
 
-echo "Neovim instalado correctamente"
+echo "✅ Neovim instalado correctamente"
