@@ -12,6 +12,6 @@ mv ./squashfs-root/usr/bin/nvim /usr/bin/nvim
 
 # Set up oh-my-posh
 curl -s https://ohmyposh.dev/install.sh | bash -s
-oh-my-posh font install Hack
-sudo cp ./Hack*.ttf /usr/share/fonts/
+#oh-my-posh font install Hack
+#sudo cp ./Hack*.ttf /usr/share/fonts/
 echo "eval \"$(oh-my-posh init bash --config /root/.cache/oh-my-posh/themes/jblab_2021.omp.json)\"" >> ~/.bashrc
