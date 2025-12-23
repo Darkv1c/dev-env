@@ -7,9 +7,11 @@ echo 'export TERM=xterm-256color' >> ~/.bashrc
 # Install nvim
 wget https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-linux-x86_64.appimage
 chmod +x nvim-linux-x86_64.appimage
-./nvim-linux-x86_64.appimage --appimage-extract 
-mv ./squashfs-root/usr/bin/nvim /usr/bin/nvim
-mkdir -p ~/.config/nvim
+./nvim-linux-x86_64.appimage --appimage-extract
+sudo mv squashfs-root/usr/bin/nvim /usr/bin/nvim
+sudo mkdir -p /usr/share/nvim
+sudo cp -r squashfs-root/usr/share/nvim/* /usr/share/nvim/
+rm -rf squashfs-root
 cp ./nvim.lua ~/.config/nvim/init.lua
 
 # Set up oh-my-posh
