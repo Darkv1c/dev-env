@@ -12,4 +12,4 @@ mv ./squashfs-root/usr/bin/nvim /usr/bin/nvim
 
 # Set up oh-my-posh
 curl -s https://ohmyposh.dev/install.sh | bash -s
-echo '"eval "$(oh-my-posh init bash --config /root/.cache/oh-my-posh/themes/jblab_2021.omp.json)"' >> ~/.bashrc
+echo 'eval "$(oh-my-posh init bash --config /root/.cache/oh-my-posh/themes/jblab_2021.omp.json)"' >> ~/.bashrc
