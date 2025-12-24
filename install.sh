@@ -18,7 +18,6 @@ rm -rf squashfs-root nvim-linux-x86_64.appimage
 
 # User config (sin sudo)
 mkdir -p ~/.config/nvim
-1
 
 # Set up oh-my-posh
 curl -s https://ohmyposh.dev/install.sh | bash -s
