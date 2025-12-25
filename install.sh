@@ -26,7 +26,6 @@ echo 'eval "$(oh-my-posh init bash --config $(find / -name "jblab_2021.omp.json"
 
 # Update
 sudo apt-get update
-sudo apt-get upgrade
 
 # Install Open Code
 curl -fsSL https://opencode.ai/install | bash
