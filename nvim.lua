@@ -31,10 +31,10 @@ require("lazy").setup({
 				defaults = {
 					path_display = { "filename_first" },
 					file_ignore_patterns = { "node_modules" },
-					pickers = {
-						find_files = {
-							hidden = true,
-						},
+				},
+				pickers = {
+					find_files = {
+						hidden = true,
 					},
 				},
 			})
@@ -128,6 +128,62 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Opencode
+	{
+		"NickvanDyke/opencode.nvim",
+		dependencies = {
+			{ "folke/snacks.nvim", opts = { input = {}, picker = {} } },
+		},
+		config = function()
+			vim.g.opencode_opts = {
+				theme = "nord",
+			}
+
+			vim.opt.autoread = true
+
+			-- Keymaps recomendados
+			vim.keymap.set({ "n", "x" }, "<leader>oa",
+				function() require("opencode").ask("@this: ", { submit = true }) end,
+				{ desc = "Ask about this" })
+
+			vim.keymap.set({ "n", "x" }, "<leader>os",
+				function() require("opencode").select() end,
+				{ desc = "Select prompt" })
+
+			vim.keymap.set({ "n", "x" }, "<leader>o+",
+				function() require("opencode").prompt("@this") end,
+				{ desc = "Add this" })
+
+			vim.keymap.set("n", "<leader>ot",
+				function() require("opencode").toggle() end,
+				{ desc = "Toggle embedded" })
+
+			vim.keymap.set("n", "<leader>oc",
+				function() require("opencode").command() end,
+				{ desc = "Select command" })
+
+			vim.keymap.set("n", "<leader>on",
+				function() require("opencode").command("session_new") end,
+				{ desc = "New session" })
+
+			vim.keymap.set("n", "<leader>oi",
+				function() require("opencode").command("session_interrupt") end,
+				{ desc = "Interrupt session" })
+
+			vim.keymap.set("n", "<leader>oA",
+				function() require("opencode").command("agent_cycle") end,
+				{ desc = "Cycle selected agent" })
+
+			vim.keymap.set("n", "<S-C-u>",
+				function() require("opencode").command("messages_half_page_up") end,
+				{ desc = "Messages half page up" })
+
+			vim.keymap.set("n", "<S-C-d>",
+				function() require("opencode").command("messages_half_page_down") end,
+				{ desc = "Messages half page down" })
+		end,
+	},
+
 	-- Conform (Code Formatter)
 	{
 		"stevearc/conform.nvim",
@@ -198,12 +254,8 @@ vim.api.nvim_create_autocmd("UIEnter", {
 })
 
 -- [[ Keymaps ]]
-vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
+vim.keymap.set("t", "<leader><Esc>", "<C-\\><C-n>")
 -- Window navigation
-vim.keymap.set({ "t", "i" }, "<leader>h", "<C-\\><C-n><C-w>h")
-vim.keymap.set({ "t", "i" }, "<leader>j", "<C-\\><C-n><C-w>j")
-vim.keymap.set({ "t", "i" }, "<leader>k", "<C-\\><C-n><C-w>k")
-vim.keymap.set({ "t", "i" }, "<leader>l", "<C-\\><C-n><C-w>l")
 vim.keymap.set("n", "<leader>h", "<C-w>h", { noremap = true })
 vim.keymap.set("n", "<leader>j", "<C-w>j", { noremap = true })
 vim.keymap.set("n", "<leader>k", "<C-w>k", { noremap = true })
