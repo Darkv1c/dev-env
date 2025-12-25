@@ -24,6 +24,10 @@ cp ./nvim.lua ~/.config/nvim/init.lua
 curl -s https://ohmyposh.dev/install.sh | bash -s
 echo 'eval "$(oh-my-posh init bash --config $(find / -name "jblab_2021.omp.json" 2>/dev/null | head -1))"' >> ~/.bashrc
 
+# Update
+sudo apt-get update
+sudo apt-get upgrade
+
 # Install Open Code
 curl -fsSL https://opencode.ai/install | bash
 sudo apt-get install -y procps
