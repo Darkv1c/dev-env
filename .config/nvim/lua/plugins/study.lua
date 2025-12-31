@@ -31,7 +31,7 @@ return {
 
 			-- Keymap para previsualizar documento Quarto
 			vim.keymap.set("n", "<leader>qp", function()
-				require("quarto").quartoPreview()
+				require("quarto").quartoPreview({ args = "--port 3000" })
 			end, { desc = "Quarto Preview" })
 		end,
 	},
