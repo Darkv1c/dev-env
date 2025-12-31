@@ -28,6 +28,11 @@ return {
 					default_method = "molten",
 				},
 			})
+
+			-- Keymap para previsualizar documento Quarto
+			vim.keymap.set("n", "<leader>qp", function()
+				require("quarto").quartoPreview()
+			end, { desc = "Quarto Preview" })
 		end,
 	},
 
