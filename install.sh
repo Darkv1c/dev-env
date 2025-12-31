@@ -16,9 +16,12 @@ chmod u+x nvim-linux-x86_64.appimage
 sudo mv squashfs-root /
 sudo ln -s /squashfs-root/AppRun /usr/bin/nvim
 
-# User config (sin sudo)
-mkdir -p ~/.config/nvim
-cp ./nvim.lua ~/.config/nvim/init.lua
+# Neovim configuration (user config, no sudo required)
+mkdir -p ~/.config/nvim/lua/plugins
+cp ./.config/nvim/init.lua ~/.config/nvim/init.lua
+cp ./.config/nvim/lua/plugins/core.lua ~/.config/nvim/lua/plugins/core.lua
+cp ./.config/nvim/lua/plugins/study.lua ~/.config/nvim/lua/plugins/study.lua
+cp ./.config/nvim/lua/plugins/work.lua ~/.config/nvim/lua/plugins/work.lua
 
 # Set up oh-my-posh
 curl -s https://ohmyposh.dev/install.sh | bash -s
