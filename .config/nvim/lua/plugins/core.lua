@@ -1,4 +1,18 @@
 return {
+	-- Cursor animation
+	{
+		"sphamba/smear-cursor.nvim",
+		opts = {},
+	},
+	
+	-- Autopairs
+	{
+		"windwp/nvim-autopairs",
+		config = function()
+			require("nvim-autopairs").setup({})
+		end,
+	},
+	
 	-- Telescope (Finder)
 	{
 		"nvim-telescope/telescope.nvim",
@@ -12,7 +26,7 @@ return {
 					path_display = { "filename_first" },
 					file_ignore_patterns = { "node_modules" },
 				},
-				pickers = {
+				pickers = {j
 					find_files = {
 						hidden = true,
 					},
