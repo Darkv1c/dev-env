@@ -153,15 +153,11 @@ log_step "Installing yazi file manager"
 if command -v yazi &> /dev/null; then
     log_warn "yazi is already installed, skipping"
 else
-    log_info "Downloading yazi"
-    # Install unzip if not available
-    if ! command -v unzip &> /dev/null; then
-        sudo apt-get install -y unzip
-    fi
-    curl -LO https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip
-    unzip -q yazi-x86_64-unknown-linux-gnu.zip
-    sudo mv yazi-x86_64-unknown-linux-gnu/yazi /usr/local/bin/
-    rm -rf yazi-x86_64-unknown-linux-gnu yazi-x86_64-unknown-linux-gnu.zip
+    log_info "Downloading yazi .deb package"
+    curl -LO https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.deb
+    log_info "Installing yazi package"
+    sudo apt-get install -y ./yazi-x86_64-unknown-linux-gnu.deb
+    rm -f yazi-x86_64-unknown-linux-gnu.deb
     log_info "yazi installed successfully"
 fi
 
