@@ -149,16 +149,20 @@ else
 fi
 
 # Install yazi (file manager)
-log_step "Installing yazi file manager"
-if command -v yazi &> /dev/null; then
-    log_warn "yazi is already installed, skipping"
+# Note: yazi requires GLIBC 2.39+, which is not available in Debian 12
+# Using lf as alternative file manager instead
+log_step "Installing lf file manager (yazi alternative)"
+if command -v lf &> /dev/null; then
+    log_warn "lf is already installed, skipping"
 else
-    log_info "Downloading yazi .deb package"
-    curl -LO https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.deb
-    log_info "Installing yazi package"
-    sudo apt-get install -y ./yazi-x86_64-unknown-linux-gnu.deb
-    rm -f yazi-x86_64-unknown-linux-gnu.deb
-    log_info "yazi installed successfully"
+    log_info "Downloading lf"
+    LF_VERSION=$(curl -s https://api.github.com/repos/gokcehan/lf/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+    curl -LO "https://github.com/gokcehan/lf/releases/latest/download/lf-linux-amd64.tar.gz"
+    tar -xzf lf-linux-amd64.tar.gz
+    sudo mv lf /usr/local/bin/
+    rm -f lf-linux-amd64.tar.gz
+    log_info "lf installed successfully"
+    log_info "Note: Using 'lf' instead of 'yazi' due to GLIBC compatibility"
 fi
 
 # Install Open Code
