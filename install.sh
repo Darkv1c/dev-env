@@ -28,7 +28,30 @@ log_step() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Detect the actual user (not root if running via sudo)
+if [ -n "$SUDO_USER" ]; then
+    ACTUAL_USER="$SUDO_USER"
+    ACTUAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+elif [ "$USER" = "root" ] && [ -n "$DEVPOD_USER" ]; then
+    # DevPod might set this
+    ACTUAL_USER="$DEVPOD_USER"
+    ACTUAL_HOME=$(getent passwd "$DEVPOD_USER" | cut -d: -f6)
+elif [ "$USER" = "root" ]; then
+    # Try to find a non-root user in the container
+    ACTUAL_USER=$(getent passwd 1000 | cut -d: -f1)
+    if [ -z "$ACTUAL_USER" ]; then
+        ACTUAL_USER="$USER"
+        ACTUAL_HOME="$HOME"
+    else
+        ACTUAL_HOME=$(getent passwd "$ACTUAL_USER" | cut -d: -f6)
+    fi
+else
+    ACTUAL_USER="$USER"
+    ACTUAL_HOME="$HOME"
+fi
+
 log_info "Starting dotfiles installation from: $SCRIPT_DIR"
+log_info "Installing for user: $ACTUAL_USER (home: $ACTUAL_HOME)"
 
 # Update
 log_step "Updating package lists"
@@ -89,10 +112,10 @@ fi
 
 # Neovim configuration
 log_step "Setting up neovim configuration"
-mkdir -p ~/.config/nvim/lua/plugins
+mkdir -p "$ACTUAL_HOME/.config/nvim/lua/plugins"
 
 if [ -f "$SCRIPT_DIR/.config/nvim/init.lua" ]; then
-    cp "$SCRIPT_DIR/.config/nvim/init.lua" ~/.config/nvim/init.lua
+    cp "$SCRIPT_DIR/.config/nvim/init.lua" "$ACTUAL_HOME/.config/nvim/init.lua"
     log_info "Copied init.lua"
 else
     log_error "init.lua not found in $SCRIPT_DIR/.config/nvim/"
@@ -100,7 +123,7 @@ fi
 
 for plugin_file in core.lua study.lua work.lua; do
     if [ -f "$SCRIPT_DIR/.config/nvim/lua/plugins/$plugin_file" ]; then
-        cp "$SCRIPT_DIR/.config/nvim/lua/plugins/$plugin_file" ~/.config/nvim/lua/plugins/$plugin_file
+        cp "$SCRIPT_DIR/.config/nvim/lua/plugins/$plugin_file" "$ACTUAL_HOME/.config/nvim/lua/plugins/$plugin_file"
         log_info "Copied $plugin_file"
     else
         log_warn "$plugin_file not found, skipping"
@@ -109,17 +132,17 @@ done
 
 # Zsh and Starship configuration
 log_step "Setting up shell configuration"
-mkdir -p ~/.config
+mkdir -p "$ACTUAL_HOME/.config"
 
 if [ -f "$SCRIPT_DIR/.zshrc" ]; then
-    cp "$SCRIPT_DIR/.zshrc" ~/.zshrc
+    cp "$SCRIPT_DIR/.zshrc" "$ACTUAL_HOME/.zshrc"
     log_info "Copied .zshrc"
 else
     log_error ".zshrc not found"
 fi
 
 if [ -f "$SCRIPT_DIR/.config/starship.toml" ]; then
-    cp "$SCRIPT_DIR/.config/starship.toml" ~/.config/starship.toml
+    cp "$SCRIPT_DIR/.config/starship.toml" "$ACTUAL_HOME/.config/starship.toml"
     log_info "Copied starship.toml"
 else
     log_error "starship.toml not found"
@@ -153,12 +176,25 @@ else
 fi
 
 log_step "Setting up OpenCode configuration"
-mkdir -p ~/.config/opencode
+mkdir -p "$ACTUAL_HOME/.config/opencode"
 if [ -f "$SCRIPT_DIR/opencode.json" ]; then
-    cp "$SCRIPT_DIR/opencode.json" ~/.config/opencode/opencode.json
+    cp "$SCRIPT_DIR/opencode.json" "$ACTUAL_HOME/.config/opencode/opencode.json"
     log_info "Copied opencode.json"
 else
     log_warn "opencode.json not found, skipping"
+fi
+
+# Fix permissions if running as root
+if [ "$USER" = "root" ] && [ "$ACTUAL_USER" != "root" ]; then
+    log_step "Fixing file permissions for $ACTUAL_USER"
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.config" "$ACTUAL_HOME/.zshrc" 2>/dev/null || true
+    log_info "Permissions updated"
+fi
+
+# Set zsh as default shell for the actual user
+if [ "$ACTUAL_USER" != "root" ]; then
+    log_step "Setting zsh as default shell for $ACTUAL_USER"
+    chsh -s $(which zsh) "$ACTUAL_USER" 2>/dev/null || log_warn "Could not set zsh as default (may require manual change)"
 fi
 
 log_info ""
