@@ -1,4 +1,54 @@
 return {
+	-- cmd line
+	{
+		"folke/noice.nvim",
+		event = "VeryLazy",
+		dependencies = {
+			"MunifTanjim/nui.nvim",
+			{
+				"rcarriga/nvim-notify",
+				opts = {
+					background_colour = "#000000",
+				},
+			},
+		},
+		opts = {
+			presets = {
+				command_palette = true,
+				bottom_search = false,
+				long_message_to_split = true,
+			},
+			lsp = {
+				override = {
+					["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+					["vim.lsp.util.stylize_markdown"] = true,
+					["cmp.entry.get_documentation"] = true,
+				},
+			},
+		},
+	},
+	
+	-- Yazi: File Manager and Note-Taking
+	{
+		"mikavilpas/yazi.nvim",
+		event = "VeryLazy",
+		keys = {
+			{
+				"<leader>-",
+				"<cmd>Yazi<cr>",
+				desc = "Open yazi at the current file",
+			},
+			{
+				"<leader>y",
+				"<cmd>Yazi cwd<cr>",
+				desc = "Open the file manager in nvim's working directory",
+			},
+		},
+		opts = {
+			open_for_directories = false,
+		},
+	},
+
 	-- Cursor animation
 	{
 		"sphamba/smear-cursor.nvim",
