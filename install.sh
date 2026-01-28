@@ -267,6 +267,13 @@ if command -v opencode &> /dev/null; then
 else
     curl -fsSL https://opencode.ai/install | bash
     sudo apt-get install -y procps lsof
+    
+    # Create symlink to make opencode globally available
+    if [ -f "$ACTUAL_HOME/.opencode/bin/opencode" ]; then
+        sudo ln -sf "$ACTUAL_HOME/.opencode/bin/opencode" /usr/local/bin/opencode
+        log_info "Created global symlink for opencode"
+    fi
+    
     log_info "OpenCode installed successfully"
 fi
 
