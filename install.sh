@@ -150,6 +150,15 @@ log_step "Updating package lists"
 sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null || true
 sudo apt-get update
 
+# Configure locale for UTF-8 support (required for icons/symbols)
+log_step "Configuring locale for UTF-8 support"
+if ! locale -a | grep -q "C.UTF-8"; then
+    log_info "Installing locales package"
+    sudo apt-get install -y locales
+fi
+# Ensure C.UTF-8 is available (it's built-in on most modern systems)
+log_info "UTF-8 locale configured"
+
 # Install zsh
 log_step "Installing zsh"
 if command -v zsh &> /dev/null; then

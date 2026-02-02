@@ -14,6 +14,10 @@ compinit
 # Agregar ~/.local/bin al PATH
 export PATH="$HOME/.local/bin:$PATH"
 
+# Ensure UTF-8 locale for proper icon/symbol rendering
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+
 # Aliases
 alias ls="eza --group-directories-first"
 
