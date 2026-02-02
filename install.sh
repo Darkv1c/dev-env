@@ -269,6 +269,40 @@ EOF
 
 log_info "Created yazi.nvim plugin configuration"
 
+# Install tmux
+log_step "Installing tmux"
+if command -v tmux &> /dev/null; then
+    log_warn "tmux is already installed, skipping"
+else
+    sudo apt-get install -y tmux
+    log_info "tmux installed successfully"
+fi
+
+# Setup tmux configuration and plugin manager
+log_step "Setting up tmux configuration"
+if [ -f "$SCRIPT_DIR/.tmux.conf" ]; then
+    if [ "$SCRIPT_DIR/.tmux.conf" -ef "$ACTUAL_HOME/.tmux.conf" ]; then
+        log_warn ".tmux.conf is already linked/configured, skipping"
+    else
+        [ -L "$ACTUAL_HOME/.tmux.conf" ] && rm "$ACTUAL_HOME/.tmux.conf"
+        cp "$SCRIPT_DIR/.tmux.conf" "$ACTUAL_HOME/.tmux.conf"
+        log_info "Copied .tmux.conf"
+    fi
+else
+    log_warn ".tmux.conf not found, skipping"
+fi
+
+# Install TPM (Tmux Plugin Manager)
+log_step "Installing TPM (Tmux Plugin Manager)"
+if [ -d "$ACTUAL_HOME/.config/tmux/plugins/tpm" ]; then
+    log_warn "TPM is already installed, skipping"
+else
+    mkdir -p "$ACTUAL_HOME/.config/tmux/plugins"
+    git clone https://github.com/tmux-plugins/tpm "$ACTUAL_HOME/.config/tmux/plugins/tpm"
+    log_info "TPM installed successfully"
+    log_info "Run 'tmux source ~/.tmux.conf' and press prefix + I to install plugins"
+fi
+
 # Zsh and Starship configuration
 log_step "Setting up shell configuration"
 mkdir -p "$ACTUAL_HOME/.config"

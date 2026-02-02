@@ -45,6 +45,8 @@ require("lazy").setup(profile_imports[profile] or profile_imports.default)
 
 -- [[ UI Settings ]]
 vim.cmd("colorscheme lunaperche")
+vim.opt.fillchars:append({ vert = "▏" }) -- Delgada ▏ o cambia por "│"
+vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#3b4261", bg = "NONE" })
 
 vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
