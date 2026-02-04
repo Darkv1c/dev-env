@@ -22,6 +22,10 @@ export PATH="$HOME/.local/bin:$PATH"
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
+# Terminal colors for nvim truecolor support
+export TERM=xterm-256color
+export COLORTERM=truecolor
+
 # Inicializar Starship
 eval "$(starship init zsh)"
 
