@@ -25,6 +25,9 @@ export LC_ALL=C.UTF-8
 # Inicializar Starship
 eval "$(starship init zsh)"
 
+# Inicializar Zoxide
+eval "$(zoxide init zsh)"
+
 export LS_COLORS="$(vivid generate one-dark)"
 export EDITOR=nvim
 export VISUAL=nvim
