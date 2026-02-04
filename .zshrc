@@ -28,6 +28,10 @@ eval "$(starship init zsh)"
 # Inicializar Zoxide
 eval "$(zoxide init zsh)"
 
+# Colores para líneas de Neovim
+export NVIM_TREE_INDENT_MARKERS=1
+export NVIM_TREE_WINSEPARATOR="▏"
+
 export LS_COLORS="$(vivid generate one-dark)"
 export EDITOR=nvim
 export VISUAL=nvim
