@@ -375,10 +375,15 @@ fi
 
 # Install fd-find and ripgrep
 log_step "Installing fd-find and ripgrep"
-if command -v fd &> /dev/null && command -v rg &> /dev/null; then
+if command -v fdfind &> /dev/null && command -v rg &> /dev/null; then
     log_warn "fd-find and ripgrep are already installed, skipping"
 else
     sudo apt-get install -y fd-find ripgrep
+    # Create symlink for fd command (fd-find installs as fdfind)
+    if command -v fdfind &> /dev/null && ! command -v fd &> /dev/null; then
+        sudo ln -sf $(which fdfind) /usr/local/bin/fd
+        log_info "Created fd symlink to fdfind"
+    fi
     log_info "fd-find and ripgrep installed successfully"
 fi
 
