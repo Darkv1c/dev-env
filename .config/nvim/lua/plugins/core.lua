@@ -31,7 +31,7 @@ return {
 	-- Yazi: File Manager and Note-Taking
 	{
 		"mikavilpas/yazi.nvim",
-		event = "VeryLazy",
+		lazy = false,
 		keys = {
 			{
 				"<leader>-",
@@ -138,10 +138,16 @@ return {
 			end
 			-- Setup Mason-LSPConfig (Automation)
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+			-- Servers managed externally (e.g. nvim-jdtls manages jdtls)
+			local external_servers = vim.g.mason_external_servers or {}
 			require("mason-lspconfig").setup({
 				ensure_installed = ensure_installed,
 				handlers = {
 					function(server_name)
+						-- Skip servers managed by dedicated plugins
+						for _, ext in ipairs(external_servers) do
+							if server_name == ext then return end
+						end
 						require("lspconfig")[server_name].setup({
 							capabilities = capabilities,
 						})
@@ -309,6 +315,29 @@ return {
 			vim.keymap.set("n", "<S-C-d>",
 				function() require("opencode").command("messages_half_page_down") end,
 				{ desc = "Messages half page down" })
+		end,
+	},
+
+	-- Firenvim (Neovim in browser)
+	{
+		"glacambre/firenvim",
+		lazy = not vim.g.started_by_firenvim,
+		build = ":call firenvim#install(0)",
+		config = function()
+			vim.g.firenvim_config = {
+				globalSettings = {
+					alt = "all",
+				},
+				localSettings = {
+					[".*"] = {
+						cmdline = "neovim",
+						content = "text",
+						priority = 0,
+						selector = "textarea",
+						takeover = "never",
+					},
+				},
+			}
 		end,
 	},
 

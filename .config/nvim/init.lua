@@ -67,6 +67,9 @@ vim.o.cursorline = true
 vim.o.scrolloff = 10
 vim.o.list = true
 vim.o.confirm = true
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.o.foldlevel = 99 -- Start with all folds open
 
 -- Sync clipboard after UIEnter to reduce startup time
 vim.api.nvim_create_autocmd("UIEnter", {
