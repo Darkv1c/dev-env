@@ -70,26 +70,6 @@ return {
 		end,
 	},
 
-	-- Prettier formatter
-	{
-		"stevearc/conform.nvim",
-		ft = { "javascript", "javascriptreact", "typescript", "typescriptreact", "json", "jsonc", "css", "scss", "html", "vue" },
-		opts = function(_, opts)
-			opts.formatters_by_ft = opts.formatters_by_ft or {}
-			opts.formatters_by_ft.javascript = { "prettier" }
-			opts.formatters_by_ft.javascriptreact = { "prettier" }
-			opts.formatters_by_ft.typescript = { "prettier" }
-			opts.formatters_by_ft.typescriptreact = { "prettier" }
-			opts.formatters_by_ft.json = { "prettier" }
-			opts.formatters_by_ft.jsonc = { "prettier" }
-			opts.formatters_by_ft.css = { "prettier" }
-			opts.formatters_by_ft.scss = { "prettier" }
-			opts.formatters_by_ft.html = { "prettier" }
-			opts.formatters_by_ft.vue = { "prettier" }
-			return opts
-		end,
-	},
-
 	-- React & Vue 3 snippets
 	{
 		"L3MON4D3/LuaSnip",
@@ -270,7 +250,7 @@ return {
 			-- Register extra LSP servers for work profile
 			vim.g.mason_extra_servers = { "eslint", "tailwindcss", "jsonls" }
 			-- Register extra formatters/tools for work profile
-			vim.g.mason_extra_tools = { "prettier" }
+			vim.g.mason_extra_tools = { "prettierd" }
 		end,
 	},
 }
