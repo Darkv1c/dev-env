@@ -2,16 +2,28 @@
 -- Activate with: NVIM_PROFILE=work nvim
 
 return {
-	-- Treesitter parsers for React/Web development
+	{
+		"olrtg/nvim-emmet",
+		config = function()
+			require("nvim-emmet").setup()
+			vim.keymap.set({ "n", "v" }, "<leader>xe", require("nvim-emmet").wrap_with_abbreviation)
+		end,
+	}, -- Treesitter parsers for React/Web development
 	{
 		"nvim-treesitter/nvim-treesitter",
 		init = function()
 			-- Register additional parsers for work profile
 			-- core.lua's config will pick these up via vim.g.treesitter_extra_parsers
 			vim.g.treesitter_extra_parsers = {
-				"javascript", "typescript", "tsx",
-				"html", "css", "scss",
-				"json", "graphql", "vue",
+				"javascript",
+				"typescript",
+				"tsx",
+				"html",
+				"css",
+				"scss",
+				"json",
+				"graphql",
+				"vue",
 			}
 		end,
 	},
@@ -28,6 +40,54 @@ return {
 				enable_close_on_slash = true,
 			},
 		},
+	},
+
+	-- Emmet abbreviations for fast HTML/JSX/TSX markup
+	{
+		"mattn/emmet-vim",
+		ft = { "html", "css", "scss", "javascriptreact", "typescriptreact", "vue" },
+		init = function()
+			vim.g.user_emmet_install_global = 0
+			vim.g.user_emmet_mode = "inv"
+		end,
+		config = function()
+			local emmet_filetypes = { "html", "css", "scss", "javascriptreact", "typescriptreact", "vue" }
+			local emmet_filetype_lookup = {}
+
+			for _, filetype in ipairs(emmet_filetypes) do
+				emmet_filetype_lookup[filetype] = true
+			end
+
+			local function setup_emmet_buffer(bufnr)
+				vim.cmd("EmmetInstall")
+
+				vim.keymap.set("i", "<Tab>", function()
+					local has_cmp, cmp = pcall(require, "cmp")
+					if has_cmp and cmp.visible() then
+						cmp.select_next_item()
+						return ""
+					end
+
+					return vim.fn["emmet#expandAbbrIntelligent"]("\t")
+				end, {
+					buffer = bufnr,
+					expr = true,
+					replace_keycodes = false,
+					desc = "Expand Emmet or next completion item",
+				})
+			end
+
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = emmet_filetypes,
+				callback = function(event)
+					setup_emmet_buffer(event.buf)
+				end,
+			})
+
+			if emmet_filetype_lookup[vim.bo.filetype] then
+				setup_emmet_buffer(0)
+			end
+		end,
 	},
 
 	-- TypeScript/JavaScript LSP additional support
@@ -92,26 +152,36 @@ return {
 			local react_snippets = {
 				-- Functional component (arrow)
 				s("rfc", {
-					t("export default function "), filename(), t({ "(props) {", "\treturn (", "\t\t<div>" }),
+					t("export default function "),
+					filename(),
+					t({ "(props) {", "\treturn (", "\t\t<div>" }),
 					i(1, "content"),
 					t({ "</div>", "\t);", "}" }),
 				}),
 
 				-- Functional component with arrow function
 				s("rafce", {
-					t("const "), filename(), t({ " = () => {", "\treturn (", "\t\t<div>" }),
+					t("const "),
+					filename(),
+					t({ " = () => {", "\treturn (", "\t\t<div>" }),
 					i(1, "content"),
-					t({ "</div>", "\t);", "};", "", "export default " }), filename(), t(";"),
+					t({ "</div>", "\t);", "};", "", "export default " }),
+					filename(),
+					t(";"),
 				}),
 
 				-- useState
 				s("us", {
-					t("const ["), i(1, "state"), t(", set"),
+					t("const ["),
+					i(1, "state"),
+					t(", set"),
 					f(function(args)
 						local name = args[1][1] or ""
 						return name:sub(1, 1):upper() .. name:sub(2)
 					end, { 1 }),
-					t("] = useState("), i(2, "initial"), t(");"),
+					t("] = useState("),
+					i(2, "initial"),
+					t(");"),
 				}),
 
 				-- useEffect
@@ -125,12 +195,18 @@ return {
 
 				-- useRef
 				s("ur", {
-					t("const "), i(1, "ref"), t(" = useRef("), i(2, "null"), t(");"),
+					t("const "),
+					i(1, "ref"),
+					t(" = useRef("),
+					i(2, "null"),
+					t(");"),
 				}),
 
 				-- useMemo
 				s("um", {
-					t("const "), i(1, "value"), t({ " = useMemo(() => {", "\treturn " }),
+					t("const "),
+					i(1, "value"),
+					t({ " = useMemo(() => {", "\treturn " }),
 					i(2),
 					t({ ";", "}, [" }),
 					i(3),
@@ -139,7 +215,9 @@ return {
 
 				-- useCallback
 				s("ucb", {
-					t("const "), i(1, "fn"), t({ " = useCallback((" }),
+					t("const "),
+					i(1, "fn"),
+					t({ " = useCallback((" }),
 					i(2),
 					t({ ") => {", "\t" }),
 					i(3),
@@ -150,12 +228,18 @@ return {
 
 				-- useContext
 				s("uctx", {
-					t("const "), i(1, "value"), t(" = useContext("), i(2, "Context"), t(");"),
+					t("const "),
+					i(1, "value"),
+					t(" = useContext("),
+					i(2, "Context"),
+					t(");"),
 				}),
 
 				-- Import React
 				s("imr", {
-					t("import { "), i(1), t(" } from 'react';"),
+					t("import { "),
+					i(1),
+					t(" } from 'react';"),
 				}),
 			}
 
@@ -167,7 +251,7 @@ return {
 					i(1),
 					t({ "", "</script>", "", "<template>", "\t<div>" }),
 					i(2, "content"),
-					t({ "</div>", "</template>", "", '<style scoped>', "" }),
+					t({ "</div>", "</template>", "", "<style scoped>", "" }),
 					i(3),
 					t({ "", "</style>" }),
 				}),
@@ -181,26 +265,36 @@ return {
 
 				-- ref
 				s("vref", {
-					t("const "), i(1, "name"), t(" = ref("), i(2, "initial"), t(");"),
+					t("const "),
+					i(1, "name"),
+					t(" = ref("),
+					i(2, "initial"),
+					t(");"),
 				}),
 
 				-- reactive
 				s("vreactive", {
-					t("const "), i(1, "state"), t({ " = reactive({", "\t" }),
+					t("const "),
+					i(1, "state"),
+					t({ " = reactive({", "\t" }),
 					i(2),
 					t({ "", "});" }),
 				}),
 
 				-- computed
 				s("vcomputed", {
-					t("const "), i(1, "value"), t({ " = computed(() => {", "\treturn " }),
+					t("const "),
+					i(1, "value"),
+					t({ " = computed(() => {", "\treturn " }),
 					i(2),
 					t({ ";", "});" }),
 				}),
 
 				-- watch
 				s("vwatch", {
-					t("watch("), i(1, "source"), t({ ", (newVal, oldVal) => {", "\t" }),
+					t("watch("),
+					i(1, "source"),
+					t({ ", (newVal, oldVal) => {", "\t" }),
 					i(2),
 					t({ "", "});" }),
 				}),
@@ -221,17 +315,23 @@ return {
 
 				-- defineProps
 				s("vprops", {
-					t("const props = defineProps<{"), i(1), t({ "}>();" }),
+					t("const props = defineProps<{"),
+					i(1),
+					t({ "}>();" }),
 				}),
 
 				-- defineEmits
 				s("vemits", {
-					t("const emit = defineEmits<{"), i(1), t({ "}>();" }),
+					t("const emit = defineEmits<{"),
+					i(1),
+					t({ "}>();" }),
 				}),
 
 				-- Vue imports
 				s("vimport", {
-					t("import { "), i(1), t(" } from 'vue';"),
+					t("import { "),
+					i(1),
+					t(" } from 'vue';"),
 				}),
 			}
 

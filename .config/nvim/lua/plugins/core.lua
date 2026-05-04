@@ -271,6 +271,23 @@ return {
 		config = function()
 			vim.g.opencode_opts = {
 				theme = "nord",
+				server = {
+					start = function()
+						require("opencode.terminal").open("env TERM=xterm-256color opencode --port", {
+							split = "right",
+							width = math.floor(vim.o.columns * 0.35),
+						})
+					end,
+					stop = function()
+						require("opencode.terminal").close()
+					end,
+					toggle = function()
+						require("opencode.terminal").toggle("env TERM=xterm-256color opencode --port", {
+							split = "right",
+							width = math.floor(vim.o.columns * 0.35),
+						})
+					end,
+				},
 			}
 
 			vim.opt.autoread = true
@@ -378,8 +395,30 @@ return {
 				if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
 					return
 				end
-				return { timeout_ms = 500, lsp_format = "fallback" }
+				return { timeout_ms = 5000, lsp_format = "fallback" }
 			end,
 		},
+	},
+
+	-- Diffview (Git diffs and history)
+	{
+		"sindrets/diffview.nvim",
+		cmd = { "DiffviewOpen", "DiffviewFileHistory", "DiffviewClose" },
+		dependencies = { "nvim-lua/plenary.nvim" },
+		keys = {
+			{ "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Open git diff view" },
+			{ "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "Current file history" },
+			{ "<leader>gH", "<cmd>DiffviewFileHistory<cr>", desc = "Repository history" },
+			{ "<leader>gq", "<cmd>DiffviewClose<cr>", desc = "Close git diff view" },
+		},
+		opts = {},
+	},
+
+	-- render markdown
+	{
+		"MeanderingProgrammer/render-markdown.nvim",
+		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+		ft = { "markdown" },
+		opts = {},
 	},
 }

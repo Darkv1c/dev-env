@@ -123,16 +123,137 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 		vim.hl.on_yank()
 	end,
 })
+
+local function telescope_lsp_picker(method, title, opts)
+	local bufnr = opts and opts.bufnr or 0
+	local params = vim.lsp.util.make_position_params(0, "utf-8")
+	local clients = vim.lsp.get_clients({ bufnr = bufnr, method = method })
+
+	if opts and opts.params then
+		params = vim.tbl_deep_extend("force", params, opts.params)
+	end
+
+	if vim.tbl_isempty(clients) then
+		vim.notify("No LSP client supports " .. title, vim.log.levels.WARN)
+		return
+	end
+
+	vim.lsp.buf_request_all(bufnr, method, params, vim.schedule_wrap(function(results)
+		local seen = {}
+		local items = {}
+
+		for client_id, result in pairs(results) do
+			local client = vim.lsp.get_client_by_id(client_id)
+			local locations = result.result
+
+			if locations then
+				if not vim.islist(locations) then
+					locations = { locations }
+				end
+
+				for _, location in ipairs(locations) do
+					local uri = location.uri or location.targetUri
+					local range = location.range or location.targetSelectionRange or location.targetRange
+
+					if uri and range then
+						local filename = vim.uri_to_fname(uri)
+						local key = table.concat({
+							filename,
+							range.start.line,
+							range.start.character,
+							range["end"].line,
+							range["end"].character,
+						}, ":")
+
+						if not seen[key] then
+							seen[key] = true
+							local text = location.text
+							if not text and client then
+								text = string.format("[%s]", client.name)
+							end
+
+							table.insert(items, {
+								filename = filename,
+								lnum = range.start.line + 1,
+								col = range.start.character + 1,
+								text = text or title,
+							})
+						end
+					end
+				end
+			end
+		end
+
+		if opts and opts.filter then
+			items = vim.tbl_filter(opts.filter, items)
+		end
+
+		if vim.tbl_isempty(items) then
+			if opts and opts.fallback then
+				return telescope_lsp_picker(opts.fallback.method, opts.fallback.title, {
+					bufnr = bufnr,
+					params = opts.fallback.params,
+				})
+			end
+
+			vim.notify("No results for " .. title, vim.log.levels.INFO)
+			return
+		end
+
+		table.sort(items, function(a, b)
+			if a.filename ~= b.filename then
+				return a.filename < b.filename
+			end
+			if a.lnum ~= b.lnum then
+				return a.lnum < b.lnum
+			end
+			return a.col < b.col
+		end)
+
+		if #items == 1 then
+			vim.cmd.edit(vim.fn.fnameescape(items[1].filename))
+			vim.api.nvim_win_set_cursor(0, { items[1].lnum, items[1].col - 1 })
+			return
+		end
+
+		vim.fn.setqflist({}, ' ', {
+			title = title,
+			items = items,
+		})
+		require('telescope.builtin').quickfix({})
+	end))
+end
+
 vim.api.nvim_create_autocmd('LspAttach', {
 	group = vim.api.nvim_create_augroup('LspAttach', { clear = false }),
 	callback = function(event)
 		local opts = { buffer = event.buf }
 		-- Navigation
-		vim.keymap.set('n', 'gd', vim.lsp.buf.definition, vim.tbl_extend('force', opts, { desc = 'Go to definition' }))
+		vim.keymap.set('n', 'gd', function()
+			telescope_lsp_picker('textDocument/definition', 'Definitions', { bufnr = event.buf })
+		end, vim.tbl_extend('force', opts, { desc = 'Go to definition' }))
 		vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, vim.tbl_extend('force', opts, { desc = 'Go to declaration' }))
-		vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, vim.tbl_extend('force', opts, { desc = 'Go to implementation' }))
-		vim.keymap.set('n', 'gr', vim.lsp.buf.references, vim.tbl_extend('force', opts, { desc = 'Find references' }))
-		vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, vim.tbl_extend('force', opts, { desc = 'Go to type definition' }))
+		vim.keymap.set('n', 'gi', function()
+			telescope_lsp_picker('textDocument/implementation', 'Implementations', {
+				bufnr = event.buf,
+				fallback = {
+					method = 'textDocument/definition',
+					title = 'Definitions',
+				},
+			})
+		end, vim.tbl_extend('force', opts, { desc = 'Go to implementation' }))
+		vim.keymap.set('n', 'gr', function()
+			telescope_lsp_picker('textDocument/references', 'References', {
+				bufnr = event.buf,
+				params = { context = { includeDeclaration = false } },
+				filter = function(item)
+					return not (item.filename == vim.api.nvim_buf_get_name(0) and item.lnum == vim.fn.line('.'))
+				end,
+			})
+		end, vim.tbl_extend('force', opts, { desc = 'Find references' }))
+		vim.keymap.set('n', '<leader>D', function()
+			telescope_lsp_picker('textDocument/typeDefinition', 'Type definitions', { bufnr = event.buf })
+		end, vim.tbl_extend('force', opts, { desc = 'Go to type definition' }))
 		-- Information
 		vim.keymap.set('n', 'K', vim.lsp.buf.hover, vim.tbl_extend('force', opts, { desc = 'Hover documentation' }))
 		vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, vim.tbl_extend('force', opts, { desc = 'Signature help' }))
